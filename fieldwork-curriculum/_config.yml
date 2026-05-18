@@ -1,0 +1,53 @@
+title: Fieldwork — Accessible Learning Labs
+description: >
+  A 24-week practitioner inquiry into accessibility, disability justice, and emergent learning
+  — published weekly for inclusive learning designers.
+baseurl: "/fieldwork-curriculum-2026/accessible-learning-labs"
+url: "https://amr0bin.github.io"
+
+theme: jekyll-theme-minimal
+
+author: Andrea Robin
+
+navigation:
+  - title: Start here
+    pages:
+      - title: README — How to Write
+        url: /writing.html
+  - title: Foundations
+    pages:
+      - title: Working Hypothesis
+        url: /foundations/hypothesis.html
+      - title: Weekly Structure
+        url: /foundations/weekly-structure.html
+      - title: Three Pillars
+        url: /foundations/three-pillars.html
+  - title: Learning
+    pages:
+      - title: Learning Objectives
+        url: /learning/objectives.html
+      - title: Core Competencies
+        url: /learning/competencies.html
+      - title: Weekly Outcomes
+        url: /learning/outcomes.html
+  - title: Templates
+    pages:
+      - title: Part 1 — Why, See
+        url: /templates/part-1.html
+      - title: Part 2 — Try, Share, Reflect
+        url: /templates/part-2.html
+  - title: Curriculum
+    pages:
+      - title: 24-Week Map
+        url: /weeks/INDEX.html
+      - title: Phase 1 — Foundations
+        url: /weeks/phase-1/
+      - title: Phase 2 — Literature
+        url: /weeks/phase-2/
+      - title: Phase 3 — Investigation
+        url: /weeks/phase-3/
+      - title: Phase 4 — Synthesis
+        url: /weeks/phase-4/
+
+markdown: kramdown
+permalink: pretty
