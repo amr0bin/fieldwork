@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fieldwork · Creator's Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Asap:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff;
+    --ink:#303e44;
+    --accent:#475f6a;
+    --muted:#69767d;
+    --faint:#8b969c;
+    --line:rgba(48,62,68,0.14);
+    --line-soft:rgba(48,62,68,0.08);
+    --paper:#f6f7f8;
+    --p1:rgba(71,95,106,0.05);
+    --p2:rgba(71,95,106,0.10);
+    --p3:rgba(71,95,106,0.16);
+    --p4:rgba(71,95,106,0.23);
+    --tile:#ffffff;
+    --tile-hover:rgba(71,95,106,0.07);
+    --radius:3px;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Asap',system-ui,-apple-system,'Segoe UI',sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    line-height:1.5;
+    font-size:15px;
+    letter-spacing:0.005em;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:34px 26px 80px}
+  .eyebrow{
+    font-size:11px;letter-spacing:0.19em;text-transform:uppercase;
+    color:var(--faint);font-weight:600;
+  }
+  em,.img{font-style:italic}
+
+  /* ---------- Masthead ---------- */
+  .mast{border-bottom:1px solid var(--line);padding-bottom:24px;margin-bottom:26px}
+  .mast .row{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap}
+  h1{
+    font-weight:700;font-size:29px;letter-spacing:-0.01em;line-height:1.05;
+  }
+  h1 .sub{display:block;font-weight:500;font-size:14px;color:var(--muted);letter-spacing:0.01em;margin-top:9px;max-width:52ch}
+  .nowchip{
+    font-size:12px;color:var(--accent);border:1px solid var(--line);
+    border-radius:100px;padding:6px 13px;white-space:nowrap;font-weight:500;
+    background:var(--paper);
+  }
+  .nowchip b{font-weight:700}
+  .nowchip.empty{color:var(--faint)}
+
+  .arc{
+    display:flex;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap;
+    font-size:13px;color:var(--muted);
+  }
+  .arc .node{font-weight:600;color:var(--ink)}
+  .arc .to{color:var(--faint);font-size:16px;line-height:1}
+
+  /* ---------- Premise strip ---------- */
+  .premise{
+    display:grid;grid-template-columns:1.6fr 1fr;gap:0;border:1px solid var(--line);
+    border-radius:var(--radius);overflow:hidden;margin-bottom:30px;
+  }
+  .premise > div{padding:16px 18px}
+  .premise .a{border-right:1px solid var(--line)}
+  .premise .lbl{font-size:11px;letter-spacing:0.17em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-bottom:7px}
+  .premise p{font-size:13.5px;color:var(--ink);max-width:60ch}
+  .pillars{display:flex;flex-direction:column;gap:6px;margin-top:2px}
+  .pillar{display:flex;align-items:baseline;gap:9px;font-size:13.5px}
+  .pillar .k{width:12px;height:12px;border-radius:2px;flex:none;position:relative;top:1px}
+  .k.acc{background:var(--accent)}
+  .k.dj{background:var(--ink)}
+  .k.el{background:transparent;border:1.5px solid var(--accent)}
+  .pillar b{font-weight:600}
+  .pillar span{color:var(--muted)}
+
+  /* ---------- Spine ---------- */
+  .spinehead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;gap:16px;flex-wrap:wrap}
+  .spinehead h2{font-size:15px;font-weight:700;letter-spacing:0.01em}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);align-items:center}
+  .legend .li{display:flex;align-items:center;gap:6px}
+  .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .dot.pub{background:var(--accent)}
+  .dot.exe{background:transparent;border:1.5px solid var(--ink)}
+  .dot.draft{background:transparent;border:1.5px solid var(--faint)}
+
+  .phases{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative}
+  /* the through-line: one continuous body of work */
+  .phases::before{
+    content:"";position:absolute;top:12px;left:0;right:0;height:1px;background:var(--line-soft);z-index:0;
+  }
+  .phase{position:relative;z-index:1;display:flex;flex-direction:column}
+  .pnode{
+    width:22px;height:22px;border-radius:50%;background:var(--bg);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent);
+    margin-bottom:12px;
+  }
+  .phasebody{border-radius:var(--radius);padding:14px 13px 13px;flex:1;display:flex;flex-direction:column;border:1px solid var(--line-soft)}
+  .phase[data-p="1"] .phasebody{background:var(--p1)}
+  .phase[data-p="2"] .phasebody{background:var(--p2)}
+  .phase[data-p="3"] .phasebody{background:var(--p3)}
+  .phase[data-p="4"] .phasebody{background:var(--p4)}
+  .phasebody .weeks-lbl{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--faint);font-weight:600}
+  .phasebody h3{font-size:14.5px;font-weight:700;margin:3px 0 8px;line-height:1.2}
+  .movement{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:3px}
+  .gimg{font-size:12.5px;color:var(--muted);font-style:italic;margin-bottom:2px;line-height:1.35}
+  .goal{font-size:11.5px;color:var(--faint);margin-bottom:12px;line-height:1.35}
+  .tiles{display:flex;flex-direction:column;gap:7px;margin-top:auto}
+
+  .tile{
+    display:flex;align-items:center;gap:10px;background:var(--tile);border:1px solid var(--line-soft);
+    border-radius:var(--radius);padding:8px 10px;cursor:pointer;text-align:left;width:100%;
+    font-family:inherit;color:var(--ink);transition:background .12s ease,border-color .12s ease,transform .12s ease;
+  }
+  .tile:hover{background:var(--tile-hover);border-color:var(--line)}
+  .tile:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .tile.current{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+  .tile .num{font-size:16px;font-weight:700;color:var(--accent);width:22px;flex:none;text-align:center;letter-spacing:-0.02em}
+  .tile .tt{font-size:12.5px;line-height:1.25;font-weight:500;flex:1}
+  .tile .stat{margin-left:auto}
+
+  /* ---------- Tabs ---------- */
+  .tabs{margin-top:34px;border-top:1px solid var(--line);padding-top:24px}
+  .tabstrip{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px}
+  .tab{
+    font-family:inherit;font-size:12.5px;font-weight:600;letter-spacing:0.01em;
+    background:transparent;border:1px solid var(--line);color:var(--muted);
+    border-radius:100px;padding:7px 15px;cursor:pointer;transition:all .12s ease;
+  }
+  .tab:hover{color:var(--ink);border-color:var(--accent)}
+  .tab[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .panel{display:none;animation:fade .18s ease}
+  .panel.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+  .panel h4{font-size:16px;font-weight:700;margin-bottom:4px}
+  .panel .lead{font-size:13.5px;color:var(--muted);margin-bottom:20px;max-width:74ch}
+
+  /* value / movements */
+  .movegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+  .movecard{border:1px solid var(--line);border-radius:var(--radius);padding:14px 13px}
+  .movecard .n{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--faint);font-weight:600}
+  .movecard h5{font-size:14px;font-weight:700;margin:4px 0 6px}
+  .movecard p{font-size:12.5px;color:var(--muted);line-height:1.4}
+  .valuenote{border-left:3px solid var(--accent);padding:2px 0 2px 15px;font-size:13.5px;color:var(--ink);max-width:76ch}
+  .valuenote b{font-weight:700}
+
+  /* dials */
+  .dials{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .dial{display:grid;grid-template-columns:26px 1.1fr 1.5fr;gap:14px;padding:13px 16px;border-bottom:1px solid var(--line-soft);align-items:baseline}
+  .dial:last-child{border-bottom:0}
+  .dial .di{font-size:14px;font-weight:700;color:var(--accent)}
+  .dial .dn{font-size:13.5px;font-weight:600}
+  .dial .dn small{display:block;font-weight:500;font-style:italic;color:var(--faint);font-size:11.5px;margin-top:2px}
+  .dial .dd{font-size:12.5px;color:var(--muted);line-height:1.45}
+
+  .caltable, .restable{width:100%;border-collapse:collapse;margin-top:22px;font-size:12.5px}
+  .caltable th,.caltable td,.restable th,.restable td{
+    text-align:left;padding:9px 11px;border-bottom:1px solid var(--line-soft);vertical-align:top;
+  }
+  .caltable thead th,.restable thead th{
+    font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint);font-weight:600;
+    border-bottom:1px solid var(--line);
+  }
+  .caltable td:first-child{font-weight:600}
+  .hot{color:var(--ink);font-weight:600}
+  .restable td.rt{font-weight:600;white-space:nowrap}
+  .restable td.rw{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .restable tr.flag td:first-child::after{content:" ●";color:var(--accent);font-size:9px;vertical-align:middle}
+  .restable td .flagnote{display:block;font-size:10.5px;color:var(--faint);font-weight:500;margin-top:2px}
+
+  /* status */
+  .statgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .statcol{border:1px solid var(--line);border-radius:var(--radius);padding:16px 17px}
+  .statcol .h{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+  .statcol .h .mk{width:11px;height:11px;border-radius:2px;flex:none}
+  .statcol.locked .mk{background:var(--accent)}
+  .statcol.open .mk{background:transparent;border:1.5px solid var(--faint)}
+  .statcol .h b{font-size:13px;font-weight:700;letter-spacing:0.01em}
+  .statlist{list-style:none;display:flex;flex-direction:column;gap:11px}
+  .statlist li{font-size:12.5px;color:var(--ink);line-height:1.4;padding-left:15px;position:relative}
+  .statlist li::before{content:"";position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+  .statcol.open .statlist li::before{background:var(--faint)}
+  .statlist li b{font-weight:600}
+  .statlist li span{color:var(--muted)}
+
+  /* ---------- Detail drawer ---------- */
+  .scrim{position:fixed;inset:0;background:rgba(48,62,68,0.28);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:40}
+  .scrim.on{opacity:1;pointer-events:auto}
+  .drawer{
+    position:fixed;top:0;right:0;height:100%;width:min(430px,92vw);background:var(--bg);
+    border-left:1px solid var(--line);box-shadow:-14px 0 40px rgba(48,62,68,0.10);
+    transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);z-index:50;
+    display:flex;flex-direction:column;
+  }
+  .drawer.on{transform:translateX(0)}
+  .dhead{padding:22px 24px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .dhead .meta{font-size:11px;letter-spacing:0.13em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-bottom:7px}
+  .dhead h3{font-size:20px;font-weight:700;line-height:1.12;letter-spacing:-0.01em}
+  .xbtn{font-family:inherit;background:transparent;border:1px solid var(--line);border-radius:50%;width:30px;height:30px;flex:none;cursor:pointer;color:var(--muted);font-size:16px;line-height:1;transition:all .12s}
+  .xbtn:hover{border-color:var(--accent);color:var(--ink)}
+  .xbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .dbody{padding:20px 24px 28px;overflow-y:auto;flex:1}
+  .drow{margin-bottom:17px}
+  .drow .rl{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-bottom:4px}
+  .drow p{font-size:13.5px;color:var(--ink);line-height:1.45}
+  .drow.artifact p{font-weight:600}
+  .chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
+  .chip{font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:100px;border:1px solid var(--line);color:var(--accent)}
+  .chip.lens{background:var(--paper)}
+  .ladder{font-style:italic;color:var(--muted)}
+  .setcur{
+    font-family:inherit;width:100%;margin-top:6px;padding:11px;border-radius:var(--radius);
+    border:1px solid var(--accent);background:transparent;color:var(--accent);font-weight:600;font-size:13px;cursor:pointer;transition:all .12s;
+  }
+  .setcur:hover{background:var(--accent);color:#fff}
+  .setcur.iscur{background:var(--paper);border-color:var(--line);color:var(--muted);cursor:default}
+  .setcur:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:11.5px;color:var(--faint);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:900px){
+    .phases{grid-template-columns:repeat(2,1fr)}
+    .phases::before{display:none}
+    .premise{grid-template-columns:1fr}
+    .premise .a{border-right:0;border-bottom:1px solid var(--line)}
+    .movegrid{grid-template-columns:1fr 1fr}
+    .statgrid{grid-template-columns:1fr}
+    .dial{grid-template-columns:24px 1fr;gap:10px}
+    .dial .dd{grid-column:2/3}
+  }
+  @media (max-width:560px){
+    .wrap{padding:24px 16px 70px}
+    h1{font-size:24px}
+    .phases{grid-template-columns:1fr}
+    .movegrid{grid-template-columns:1fr}
+    .caltable, .restable{font-size:11.5px}
+    .restable td.rw{white-space:normal}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- MASTHEAD -->
+  <header class="mast">
+    <div class="row">
+      <h1>Fieldwork <span class="eyebrow" style="font-size:11px;color:var(--faint)">· Creator's Map</span>
+        <span class="sub">A weekly public inquiry into inclusive learning design from Accessible Learning Labs — for practitioners working where access to learning matters. Twenty-four weeks; each week a Part 1 concept essay and a Part 2 companion resource.</span>
+      </h1>
+      <div class="nowchip empty" id="nowchip">No current week set — open any week to mark it</div>
+    </div>
+    <div class="arc">
+      <span class="eyebrow">The arc</span>
+      <span class="node">Content consumer</span>
+      <span class="to">→</span>
+      <span class="node">Practitioner-researcher</span>
+    </div>
+  </header>
+
+  <!-- PREMISE -->
+  <section class="premise">
+    <div class="a">
+      <div class="lbl">The premise</div>
+      <p>Barriers to learning are design problems — best addressed when three commitments are treated as interdependent rather than separate. Every week leads with one of them; the other two support.</p>
+      <div class="pillars">
+        <div class="pillar"><span class="k acc"></span><span><b>Accessibility</b> — the floor, and who it still fails</span></div>
+        <div class="pillar"><span class="k dj"></span><span><b>Disability Justice</b> — whose voice leads, nothing about us without us</span></div>
+        <div class="pillar"><span class="k el"></span><span><b>Emergent Learning</b> — how practice adapts and stays relational</span></div>
+      </div>
+    </div>
+    <div class="b">
+      <div class="lbl">What the reader walks away holding</div>
+      <p>Not a certificate — one accumulating research dossier: a thesis plus a tested, born-accessible learning intervention, told end to end. The evidence of a practitioner-researcher, returned to the community it came from.</p>
+    </div>
+  </section>
+
+  <!-- SPINE -->
+  <section>
+    <div class="spinehead">
+      <h2>The year, at a glance — one body of work in four movements</h2>
+      <div class="legend">
+        <span class="eyebrow" style="font-size:10.5px">Draft status</span>
+        <span class="li"><span class="dot pub"></span>Published / revised (1–4)</span>
+        <span class="li"><span class="dot exe"></span>Worked exemplar (5)</span>
+        <span class="li"><span class="dot draft"></span>Drafted, case to verify (6–24)</span>
+      </div>
+    </div>
+    <div class="phases" id="phases"><!-- built by JS --></div>
+    <p style="font-size:11.5px;color:var(--faint);margin-top:12px;max-width:80ch">The bands deepen left to right — the work moves from boundless intent toward something grounded, near, and given back. Select any week for its full record.</p>
+  </section>
+
+  <!-- TABS -->
+  <section class="tabs">
+    <div class="tabstrip" role="tablist" aria-label="Reference lenses">
+      <button class="tab" role="tab" aria-selected="true" id="tab-value" data-panel="value">Reader value</button>
+      <button class="tab" role="tab" aria-selected="false" id="tab-craft" data-panel="craft">The Discovery Pass</button>
+      <button class="tab" role="tab" aria-selected="false" id="tab-res" data-panel="res">Part 2 resources</button>
+      <button class="tab" role="tab" aria-selected="false" id="tab-status" data-panel="status">Status &amp; open decisions</button>
+    </div>
+
+    <!-- VALUE -->
+    <div class="panel on" id="panel-value" role="tabpanel" aria-labelledby="tab-value">
+      <h4>What each week gives a peer in learning design</h4>
+      <p class="lead">Three things every week: a concept or capacity to take on, a concrete move they can now make in their own work, and a real artifact they produce. Week by week the artifacts assemble into the dossier — the trail rolls up in four movements.</p>
+      <div class="movegrid" id="movegrid"><!-- built by JS --></div>
+      <p class="valuenote">The value is a shift in <b>stance</b>: from consuming what the field hands down to investigating what is true in one's own context — accessibly, in a high-stakes setting — and returning that work to the people it serves.</p>
+    </div>
+
+    <!-- CRAFT -->
+    <div class="panel" id="panel-craft" role="tabpanel" aria-labelledby="tab-craft">
+      <h4>The Discovery Pass — run first, every week</h4>
+      <p class="lead">A twenty-minute pass that decides what a week is <em>about</em> before the template is applied. It sets five dials and, crucially, how hot to run each one for the week at hand — four techniques applied evenly would only be a new formula.</p>
+      <div class="dials" id="dials"><!-- built by JS --></div>
+      <table class="caltable">
+        <thead><tr><th>Week type</th><th>Turn</th><th>Image</th><th>Braid lead</th><th>Spine</th><th>You visible</th></tr></thead>
+        <tbody id="calbody"></tbody>
+      </table>
+      <p style="font-size:11.5px;color:var(--faint);margin-top:14px;max-width:80ch">Each week's controlling image ladders up to its phase's governing image, so the images accrete across the year rather than resetting: <em>from the vast to the holdable → the floor, grammar, compass, method → nearness → giving it back</em>.</p>
+    </div>
+
+    <!-- RESOURCES -->
+    <div class="panel" id="panel-res" role="tabpanel" aria-labelledby="tab-res">
+      <h4>Ten resource types for the Part 2 slot</h4>
+      <p class="lead">Never start Part 2 from a blank page: decide which type the week needs, then fill its sub-template. Ranked by how many weeks each serves and how directly it transfers the skill. Types 1 and 2 are built out as flagship sub-templates (● below); the Fillable Canvas is next.</p>
+      <table class="restable">
+        <thead><tr><th>#</th><th>Resource type</th><th>Weeks it serves</th><th>The reader's cognitive move</th></tr></thead>
+        <tbody id="resbody"></tbody>
+      </table>
+    </div>
+
+    <!-- STATUS -->
+    <div class="panel" id="panel-status" role="tabpanel" aria-labelledby="tab-status">
+      <h4>Where the project stands</h4>
+      <p class="lead">What rests on settled ground, and what is still yours to decide — so the map reflects real decisions, not assumptions.</p>
+      <div class="statgrid">
+        <div class="statcol locked">
+          <div class="h"><span class="mk"></span><b>Settled</b></div>
+          <ul class="statlist">
+            <li><b>The 24-week structure</b> — four phases, weekly gains, and portfolio artifacts, mapped end to end.</li>
+            <li><b>The value map</b> — what each week gives the reader and what it enables in practice.</li>
+            <li><b>Ten Part 2 resource types</b>, ranked; Types 1 and 2 built as sub-templates, Type 3 next.</li>
+            <li><b>The Discovery Pass</b> — five dials and the calibration table, as the weekly instrument.</li>
+            <li><b>Drafts, end to end</b> — Weeks 1–4 published/revised, Week 5 a worked exemplar, Weeks 6–24 drafted discovery-first.</li>
+          </ul>
+        </div>
+        <div class="statcol open">
+          <div class="h"><span class="mk"></span><b>Open — to confirm</b></div>
+          <ul class="statlist">
+            <li><b>Phase governing images</b> — proposed, not yet locked. <span>Changing them now is cheap; later, costly.</span></li>
+            <li><b>The spine</b> — one real followed inquiry across the year, or light thematic callbacks. <span>Currently thematic.</span></li>
+            <li><b>Every <em>See</em> case</b> — a sourced placeholder. <span>Per-article fact-check verification still pending across all four draft files.</span></li>
+            <li><b>Per-week braid lead</b> — the lead pillar shown per week is the lens the Discovery Pass prescribes, to confirm as each week is drafted.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>Fieldwork · Accessible Learning Labs — private working reference</span>
+    <span>Accessibility · Disability Justice · Emergent Learning</span>
+  </div>
+</div>
+
+<!-- DETAIL DRAWER -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dtitle">
+  <div class="dhead">
+    <div>
+      <div class="meta" id="dmeta"></div>
+      <h3 id="dtitle"></h3>
+    </div>
+    <button class="xbtn" id="xbtn" aria-label="Close">✕</button>
+  </div>
+  <div class="dbody" id="dbody"></div>
+</aside>
+
+<script>
+/* ---------------- DATA ---------------- */
+const PHASES = [
+  {p:1, weeks:"Weeks 1–6", name:"Foundations & Thesis Discovery", movement:"The problem, defined",
+   gimg:"from the vast to the holdable", goal:"Align personal interest with the thesis and establish the research problem.",
+   roll:"Statement of Intent → environmental scan → research question → feasibility map → living proposal. A reader can see what is being investigated, for whom, and why it matters."},
+  {p:2, weeks:"Weeks 7–12", name:"Literature Review & Theoretical Scaffolding", movement:"The problem, grounded",
+   gimg:"the floor, the grammar, the compass, the method", goal:"Situate the inquiry within existing legal, social, and pedagogical frameworks.",
+   roll:"Legal audit → WCAG scan → power/voice map → emergence observation → redesigned session → gap statement. The inquiry is situated in law, standards, justice, and pedagogy, with a precise synthesis gap named."},
+  {p:3, weeks:"Weeks 13–18", name:"Investigation & Methodology", movement:"The evidence, gathered",
+   gimg:"nearness", goal:"Conduct field research to gather qualitative and quantitative data.",
+   roll:"Methodology defense → stakeholder/co-design plan → interview → survey → ethics protocol → findings session. Real data, collected accountably and tested with peers."},
+  {p:4, weeks:"Weeks 19–24", name:"Analysis, Design & Synthesis", movement:"The intervention, made",
+   gimg:"giving it back", goal:"Translate findings into inclusive learning content and finalize the thesis.",
+   roll:"Thematic analysis → cross-case patterns → end-goal statement → accessible prototype → iteration log → public living resource. Findings become a born-accessible artifact, refined with the community and returned to it."}
+];
+
+const LENS = {
+  Framework:{lead:"Accessibility", note:"what the standard requires and still misses"},
+  Lived:{lead:"Disability Justice", note:"the relationship with real participants"},
+  Method:{lead:"Emergent Learning", note:"a turning point in how the inquiry adapts"},
+  Analysis:{lead:"shifts by week", note:"synthesis — the lead moves with the material"}
+};
+
+// status: pub | exe | draft
+const WEEKS = [
+  {n:1,p:1,type:"Method",status:"pub",title:"The gap between policy and practice",
+   gain:"Locate the precise place where official accessibility policy and lived learner experience diverge, and treat it as researchable, not just frustrating.",
+   enables:"Name a concrete, high-stakes problem in their own setting with a defensible point of view — the first move from practitioner to practitioner-researcher.",
+   artifact:"Statement of Intent — the phenomenon, their positionality, and a policy-vs-experience comparison locating the gap.",
+   res:"Self-diagnostic / audit tool", res2:"Relational mapping tool"},
+  {n:2,p:1,type:"Framework",status:"pub",title:"Deconstructing the hypothesis",
+   gain:"See the three pillars operating — or siloed — in their own environment.",
+   enables:"Diagnose whether their setting integrates or isolates the pillars, and name whose exclusion is written into the legal floor.",
+   artifact:"Three-pillar analysis of their environment + a group audit of where each pillar shows up.",
+   res:"Self-diagnostic / audit tool"},
+  {n:3,p:1,type:"Framework",status:"pub",title:"Systems that carry (and drop) knowledge",
+   gain:"Map the actual delivery systems their organization uses to carry knowledge.",
+   enables:"Run an environmental scan that surfaces where participation is assumed rather than designed, and where support is consistently dropped.",
+   artifact:"Environmental scan mapping delivery systems and their structural gaps.",
+   res:"Self-diagnostic / audit tool", res2:"Observation / noticing guide"},
+  {n:4,p:1,type:"Method",status:"pub",title:"Developing the research question",
+   gain:"Narrow a broad curiosity into a specific, researchable question that names the most excluded.",
+   enables:"Frame a question answerable within real constraints that centers the people the current system fails.",
+   artifact:"Refined research question, pressure-tested with peers.",
+   res:"Statement builder (sentence-frame)", res2:"Question / prompt bank"},
+  {n:5,p:1,type:"Lived",status:"exe",title:"Ethical constraints as design constraints",
+   gain:"Treat resources, time, access, and consent as design constraints — consent as a relationship, not a form.",
+   enables:"Scope a feasible investigation honestly and plan ethical engagement with marginalized participants from the outset.",
+   artifact:"Feasibility / resource map + an ongoing informed-consent plan.",
+   res:"Fillable canvas / one-page template", leadFixed:"Disability Justice"},
+  {n:6,p:1,type:"Method",status:"draft",title:"The proposal as a living blueprint",
+   gain:"Consolidate the inquiry into a responsive blueprint with clear success criteria.",
+   enables:"State objectives, methodology, and significance so any reader could judge whether the inquiry succeeded — and keep it adaptive.",
+   artifact:"One-page research proposal (living blueprint) with success criteria.",
+   res:"Fillable canvas / one-page template"},
+
+  {n:7,p:2,type:"Framework",status:"draft",title:"Legal frameworks (the floor)",
+   gain:"Understand the legal baseline (ACA, AODA, ADA) as a floor, not a ceiling.",
+   enables:"Audit their environment against the law and use legal literacy as a design tool — asking who this standard still fails.",
+   artifact:"Legal-frameworks audit of their environment, naming what the law leaves out.",
+   res:"Self-diagnostic / audit tool"},
+  {n:8,p:2,type:"Framework",status:"draft",title:"Technical standards (the grammar)",
+   gain:"Gain working command of WCAG 2.1, while seeing that a checklist can't replace lived experience.",
+   enables:"Run a WCAG scan on real content and spot what passes the checklist yet stays pedagogically useless or alienating.",
+   artifact:"WCAG scan of one piece of their own digital content.",
+   res:"Self-diagnostic / audit tool"},
+  {n:9,p:2,type:"Lived",status:"draft",title:"Disability justice (the compass)",
+   gain:"Learn intersectionality, leadership of those most impacted, and the social vs medical model.",
+   enables:"Map power and voice in their context (who leads, benefits, is most impacted) and apply an intersectional lens to their question.",
+   artifact:"Power/voice map + an intersectional analysis of their research question.",
+   res:"Relational mapping tool"},
+  {n:10,p:2,type:"Method",status:"draft",title:"Emergent learning (the method)",
+   gain:"Learn emergent learning's roots (critical theory, Freire) and the contrast with banking education.",
+   enables:"Name where learning is already emerging and design a condition that facilitates emergence rather than controlling it.",
+   artifact:"“Where learning is emerging” observation + one designed condition that facilitates emergence.",
+   res:"Observation / noticing guide"},
+  {n:11,p:2,type:"Framework",status:"draft",title:"Neuroeducation & brain health",
+   gain:"Learn how active learning, spaced repetition, and emotional engagement support neuroplasticity.",
+   enables:"Redesign a session with evidence-based practice and audit a design for neurotypical-by-default assumptions.",
+   artifact:"Redesigned session/module, audited for neurotypical defaults.",
+   res:"Self-diagnostic / audit tool", res2:"Worked example / annotated exemplar"},
+  {n:12,p:2,type:"Method",status:"draft",title:"Identifying research gaps",
+   gain:"Synthesize the literature into a gap about the missing integration of the three pillars.",
+   enables:"Articulate the specific synthesis gap their work addresses — the most generative research position in the curriculum.",
+   artifact:"Gap statement, stress-tested with peers.",
+   res:"Statement builder (sentence-frame)", res2:"Worked example / annotated exemplar"},
+
+  {n:13,p:3,type:"Method",status:"draft",title:"Choosing methodology",
+   gain:"Select a mixed-methods approach aligned to their question.",
+   enables:"Defend a methodology that balances measurable scale with lived-experience depth, and state what counts as valid evidence.",
+   artifact:"Methodology choice + written defense.",
+   res:"Decision aid (tree + comparison matrix)"},
+  {n:14,p:3,type:"Lived",status:"draft",title:"Stakeholder engagement & co-design",
+   gain:"Move from consultation-as-permission to genuine co-design.",
+   enables:"Map stakeholders, see who's missing from feedback channels, and invite disabled learners in before decisions are final.",
+   artifact:"Stakeholder map (with who's missing) + a co-design plan.",
+   res:"Relational mapping tool", res2:"Facilitation / session protocol"},
+  {n:15,p:3,type:"Lived",status:"draft",title:"Listening as a research practice",
+   gain:"Learn non-extractive, participatory listening with marginalized learners.",
+   enables:"Run an interview/focus group that surfaces lived barriers and listen for the outlier data structured questions miss.",
+   artifact:"One participatory interview/focus group conducted, with notes on what was heard.",
+   res:"Facilitation / session protocol", res2:"Question / prompt bank"},
+  {n:16,p:3,type:"Lived",status:"draft",title:"Quantitative data as provocation",
+   gain:"Use surveys to surface patterns, treating numbers as provocation, not conclusion.",
+   enables:"Design and pilot a short survey and audit it for able-bodied / neurotypical bias.",
+   artifact:"Three-question survey designed and piloted.",
+   res:"Question / prompt bank", res2:"Self-diagnostic / audit tool"},
+  {n:17,p:3,type:"Lived",status:"draft",title:"Ongoing ethical oversight",
+   gain:"Treat ethics as an ongoing relationship — confidentiality, anonymity, renegotiated consent.",
+   enables:"Maintain accountability and transparency as the research direction shifts.",
+   artifact:"Reviewed consent/confidentiality protocol + an accountability mechanism.",
+   res:"Fillable canvas / one-page template"},
+  {n:18,p:3,type:"Lived",status:"draft",title:"Collaborative inquiry",
+   gain:"Learn the value of peer-based collective sensemaking.",
+   enables:"Host a preliminary-findings session that cross-pollinates ideas and identify which findings survive multiple perspectives.",
+   artifact:"Hosted preliminary-findings session + the robust patterns it surfaced.",
+   res:"Facilitation / session protocol"},
+
+  {n:19,p:4,type:"Analysis",status:"draft",title:"Meaning-making (data analysis)",
+   gain:"Thematic and statistical analysis that doesn't flatten lived experience.",
+   enables:"Code qualitative data with a peer and produce findings that are both deep and broad.",
+   artifact:"Coded data / thematic analysis (done with a peer).",
+   res:"Worked example / annotated exemplar"},
+  {n:20,p:4,type:"Analysis",status:"draft",title:"Cross-case analysis",
+   gain:"Distinguish a local problem from a structural pattern of exclusion.",
+   enables:"Compare findings across contexts and generate insights that hold across environments.",
+   artifact:"Cross-case analysis naming shared systemic patterns.",
+   res:"Worked example / annotated exemplar", res2:"Decision aid (tree + comparison matrix)"},
+  {n:21,p:4,type:"Method",status:"draft",title:"Backward design for social change",
+   gain:"Start from the end goal — social transformation and resilience — and design backward.",
+   enables:"Write an end-goal statement defined by the most marginalized learner and align every choice to it.",
+   artifact:"End-goal / transformation statement to design backward from.",
+   res:"Statement builder (sentence-frame)", res2:"Fillable canvas / one-page template"},
+  {n:22,p:4,type:"Analysis",status:"draft",title:"Prototype development",
+   gain:"Build a rough, testable, born-accessible artifact applying UDL from the first draft.",
+   enables:"Produce a prototype and surface invisible design assumptions by testing with someone typically excluded.",
+   artifact:"Accessible prototype / sample lesson (UDL-applied), tested with a real person.",
+   res:"Worked example / annotated exemplar", res2:"Observation / noticing guide"},
+  {n:23,p:4,type:"Lived",status:"draft",title:"Iteration & public feedback",
+   gain:"Treat feedback as part of the design, via reflection-in- and on-action.",
+   enables:"Run a structured feedback session with original stakeholders and refine while honoring their insights.",
+   artifact:"Documented feedback session + recorded refinements.",
+   res:"Facilitation / session protocol"},
+  {n:24,p:4,type:"Analysis",status:"draft",title:"Culmination & dissemination",
+   gain:"Return knowledge to the community in an accessible, living format.",
+   enables:"Finalize and share a usable resource that keeps adapting beyond their control — completing the move to practitioner-researcher.",
+   artifact:"Finalized body of work, shared as an accessible living resource.",
+   res:"Worked example / annotated exemplar"}
+];
+
+const DIALS = [
+  {i:1, n:"The turn", cal:"always on full", d:"The one idea the reader doesn't have at the start and does by the end — the pulse. If you can't say it in a sentence, you're not ready to draft."},
+  {i:2, n:"The controlling image", cal:"hot on dry weeks, light on vivid ones", d:"One image that carries the turn structurally, not decoration. Concept-dense weeks run it hot; weeks with a vivid human situation need only a light touch. Ladders to the phase image."},
+  {i:3, n:"The pillar braid", cal:"calibrate which pillar leads", d:"All three are present; one leads, two support. Naming the lead before drafting is what stops the three sitting side by side like a checklist."},
+  {i:4, n:"The spine", cal:"heavy on hinge weeks, light otherwise", d:"A real inquiry the reader follows across the arc. Hinge weeks (the question, the ethics turn, the prototype, the return) carry it heavily; framework weeks touch it lightly."},
+  {i:5, n:"You, visible", cal:"mostly off; on only at true thresholds", d:"The writer modeling inquiry — a genuinely unsettled question. On only where the work is honestly hard; the restraint is what gives it weight."}
+];
+
+const CAL = [
+  ["Framework / standard","full","hot","Accessibility","light","off"],
+  ["Lived-interaction","full","warm","Disability Justice","medium","warm"],
+  ["Method / turning point","extra-sharp","warm","Emergent Learning","heavy","warm"],
+  ["Analysis / synthesis","full","warm","shifts by week","heavy","warm"]
+];
+const HOTCELLS = {0:[2],1:[3,5],2:[1,4,5],3:[4,5]};
+
+const RES = [
+  [1,"Self-diagnostic / audit tool","1, 2, 3, 7, 8, 11, 16, 22","Run the week's lens over my own environment and get back a map of my gaps",true,"flagship sub-template built"],
+  [2,"Worked example / annotated exemplar","3, 11, 12, 16, 19, 20, 22, 24","See a finished model with the thinking exposed, so the unfamiliar move stops being abstract",true,"flagship sub-template built"],
+  [3,"Fillable canvas / one-page template","5, 6, 14, 17, 21","Produce a structured deliverable by completing a small set of fields",false,"next to build"],
+  [4,"Statement builder (sentence-frame)","4, 12, 21","Compose one precise, revisable sentence",false,""],
+  [5,"Facilitation / session protocol","14, 15, 18, 23","Run an accessible, non-extractive session with real participants",false,""],
+  [6,"Relational mapping tool","1, 9, 14","Make invisible structure — who leads, who's missing — visible",false,""],
+  [7,"Decision aid (tree + comparison matrix)","13, 20, 22","Choose among options by weighing what each reveals and costs",false,""],
+  [8,"Question / prompt bank","4, 15, 16","Ask better, less extractive questions by adapting a curated set",false,""],
+  [9,"Observation / noticing guide","3, 10, 22","Watch systematically and record without concluding too early",false,""],
+  [10,"Explainer (video / interactive)","conceptual fallback","See the concept demonstrated before doing it",false,""]
+];
+
+/* ---------------- RENDER ---------------- */
+const statLabel = {pub:"Published / revised", exe:"Worked exemplar drafted", draft:"Drafted — case to verify"};
+let currentWeek = null;
+
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+function buildSpine(){
+  const host = document.getElementById('phases');
+  host.innerHTML = PHASES.map(ph=>{
+    const tiles = WEEKS.filter(w=>w.p===ph.p).map(w=>`
+      <button class="tile" data-week="${w.n}" aria-label="Week ${w.n}: ${esc(w.title)}">
+        <span class="num">${w.n}</span>
+        <span class="tt">${esc(w.title)}</span>
+        <span class="stat"><span class="dot ${w.status}"></span></span>
+      </button>`).join('');
+    return `<div class="phase" data-p="${ph.p}">
+      <div class="pnode">P${ph.p}</div>
+      <div class="phasebody">
+        <div class="weeks-lbl">${ph.weeks}</div>
+        <h3>${ph.name}</h3>
+        <div class="movement">${ph.movement}</div>
+        <div class="gimg">“${ph.gimg}”</div>
+        <div class="goal">${ph.goal}</div>
+        <div class="tiles">${tiles}</div>
+      </div>
+    </div>`;
+  }).join('');
+  host.querySelectorAll('.tile').forEach(b=>{
+    b.addEventListener('click',()=>openWeek(+b.dataset.week));
+  });
+}
+
+function buildMovements(){
+  document.getElementById('movegrid').innerHTML = PHASES.map(ph=>`
+    <div class="movecard">
+      <div class="n">${ph.weeks}</div>
+      <h5>${ph.movement}</h5>
+      <p>${ph.roll}</p>
+    </div>`).join('');
+}
+
+function buildDials(){
+  document.getElementById('dials').innerHTML = DIALS.map(d=>`
+    <div class="dial">
+      <div class="di">${d.i}</div>
+      <div class="dn">${d.n}<small>${d.cal}</small></div>
+      <div class="dd">${d.d}</div>
+    </div>`).join('');
+  document.getElementById('calbody').innerHTML = CAL.map((row,ri)=>`
+    <tr>${row.map((c,ci)=>{
+      const hot = (HOTCELLS[ri]||[]).includes(ci);
+      return `<td${hot?' class="hot"':''}>${c}</td>`;
+    }).join('')}</tr>`).join('');
+}
+
+function buildRes(){
+  document.getElementById('resbody').innerHTML = RES.map(r=>{
+    const flag = r[4];
+    return `<tr class="${flag?'flag':''}">
+      <td class="rw">${r[0]}</td>
+      <td class="rt">${r[1]}${r[5]?`<span class="flagnote">${r[5]}</span>`:''}</td>
+      <td class="rw">${r[2]}</td>
+      <td>${r[3]}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ---------------- DRAWER ---------------- */
+const scrim=document.getElementById('scrim'), drawer=document.getElementById('drawer');
+
+function openWeek(n){
+  const w = WEEKS.find(x=>x.n===n);
+  const ph = PHASES.find(p=>p.p===w.p);
+  const lens = LENS[w.type];
+  const lead = w.leadFixed || lens.lead;
+  const leadNote = w.leadFixed ? "" : " (prescribed lens — confirm per week)";
+  document.getElementById('dmeta').textContent = `Week ${w.n} · Phase ${w.p} · ${ph.name}`;
+  document.getElementById('dtitle').textContent = w.title;
+  document.getElementById('dbody').innerHTML = `
+    <div class="chips">
+      <span class="chip">${w.type} week</span>
+      <span class="chip lens">Lead: ${lead}${leadNote}</span>
+      <span class="chip lens">${statLabel[w.status]}</span>
+    </div>
+    <div class="drow"><div class="rl">What the reader gains</div><p>${w.gain}</p></div>
+    <div class="drow"><div class="rl">What it enables in practice</div><p>${w.enables}</p></div>
+    <div class="drow artifact"><div class="rl">Portfolio artifact</div><p>${w.artifact}</p></div>
+    <div class="drow"><div class="rl">Part 2 companion resource</div><p>${w.res}${w.res2?` <span style="color:var(--muted)">· or ${w.res2}</span>`:''}</p></div>
+    <div class="drow"><div class="rl">Ladders to the phase image</div><p class="ladder">“${ph.gimg}” — ${ph.movement.toLowerCase()}</p></div>
+    <button class="setcur" id="setcur"></button>
+  `;
+  const btn = document.getElementById('setcur');
+  const isCur = currentWeek===n;
+  btn.textContent = isCur ? "This is your current week" : "Mark as current week";
+  btn.classList.toggle('iscur', isCur);
+  if(!isCur){ btn.addEventListener('click',()=>{ setCurrent(n); openWeek(n); }); }
+  scrim.classList.add('on'); drawer.classList.add('on');
+  document.getElementById('xbtn').focus();
+}
+function closeDrawer(){ scrim.classList.remove('on'); drawer.classList.remove('on'); }
+
+function setCurrent(n){
+  currentWeek=n;
+  document.querySelectorAll('.tile').forEach(t=>t.classList.toggle('current', +t.dataset.week===n));
+  const w=WEEKS.find(x=>x.n===n); const ph=PHASES.find(p=>p.p===w.p);
+  const chip=document.getElementById('nowchip');
+  chip.classList.remove('empty');
+  chip.innerHTML = `Currently at <b>Week ${n}</b> · ${ph.movement}`;
+}
+
+document.getElementById('xbtn').addEventListener('click',closeDrawer);
+scrim.addEventListener('click',closeDrawer);
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeDrawer(); });
+
+/* ---------------- TABS ---------------- */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected','false'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+    t.setAttribute('aria-selected','true');
+    document.getElementById('panel-'+t.dataset.panel).classList.add('on');
+  });
+});
+
+buildSpine(); buildMovements(); buildDials(); buildRes();
+</script>
+</body>
+</html>
